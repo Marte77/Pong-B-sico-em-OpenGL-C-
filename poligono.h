@@ -21,22 +21,24 @@ protected:
 	GLuint vertexbuffer;
 	int nVertices;
 	GLfloat valorMov = 0.05f;
-	GLfloat* verticesVisiveis; //igual ao array vertices mas sem a repeticao dos vertices devido ao opengl, 
-							   //quando fiz este projeto ainda nao sabia como otimizar esse aspeto
-	int nVerticesVisiveis;
+
+	
 public:
+	GLfloat comprimento, largura, centro[3];
 	int getNVertices() {
 		return nVertices;
-	}
-	int getNVerticesVi() {
-		return nVerticesVisiveis;
 	}
 	void alterarValorDeMovimento(GLfloat a) {
 		valorMov = a;
 	}
 
 
-	poligono(GLfloat* vertices_, std::size_t sizeofVertices) {
+	poligono(GLfloat* vertices_, std::size_t sizeofVertices, GLfloat larg, GLfloat comp, GLfloat centX, GLfloat centY, GLfloat centZ) {
+		largura = larg;
+		comprimento = comp;
+		centro[0] = centX;
+		centro[1] = centY;
+		centro[2] = centZ;
 		int nVertices_ = sizeofVertices / sizeof(GLfloat);
 		nVertices = nVertices_;
 		vertices = (GLfloat*)malloc(sizeof(GLfloat) * nVertices_);
@@ -44,30 +46,12 @@ public:
 			vertices[i] = vertices_[i];
 
 		}
-		int nverticesVi = 0;
-		GLfloat* verticesVi = (GLfloat*)malloc(sizeof(GLfloat) * nVertices_); //array auxiliar para depois guardar os numeros nao repetidos no outro vetor
-		for (int i = 0; i < nVertices_; i++) { 
-			verticesVi[i] = vertices_[i];
-			nverticesVi++;
-		}
-		//remover os vertices repetidos
-		for (int i = 0; i < nverticesVi/3; i=i+3) {
-			//TODO: ORGANIZAR O VETOR VERTICESVI E REMOVER AS COORDS DUPLICADAS!!
-		}
-		verticesVisiveis = (GLfloat*)malloc(sizeof(GLfloat) * nverticesVi);
-		for (int i = 0; i < nverticesVi; i++) {
-			verticesVisiveis[i] = verticesVi[i];
-		}
-		nVerticesVisiveis = nverticesVi;
+
+
 		glGenBuffers(1, &vertexbuffer);//gerar 1 buffer e guardar na variavel
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer); //ligarg o buffer ao array de buffers do opengl
 		glBufferData(GL_ARRAY_BUFFER, sizeof(*vertices)*nVertices, vertices, GL_STATIC_DRAW);
-		std::cout << nverticesVi/3 << std::endl;
-		for (int i = 0; i < nverticesVi; i++) {
-			std::cout << verticesVisiveis[i] << "  ";
-		}
-		std::cout <<  std::endl;
-		free(verticesVi);
+
 	};
 	
 	void draw() {
@@ -90,7 +74,7 @@ public:
 	
 	~poligono() {
 		free(vertices);
-		free(verticesVisiveis);
+
 	}
 	
 	bool podeAndarCima(){
@@ -126,7 +110,9 @@ public:
 				for (int i = 0; i < nVertices; i++) {
 					if (i % 3 == 1)
 						vertices[i] = vertices[i] + valorMov;
+
 				}
+				centro[2] = centro[2]+ valorMov;
 				break;
 			case 2: //baixo
 				podeMover = podeAndarBaixo();
@@ -136,6 +122,7 @@ public:
 					if (i % 3 == 1)
 						vertices[i] = vertices[i] - valorMov;
 				}
+				centro[2] = centro[2] - valorMov;
 				break;
 			case 3: //esquerda
 				break;
@@ -148,11 +135,6 @@ public:
 		glBufferData(GL_ARRAY_BUFFER, sizeof(*vertices) * nVertices, vertices, GL_STATIC_DRAW);
 	}
 
-	void copiarArrayVerticesVisiveis(GLfloat* &arrayACopiar) {
-		arrayACopiar = (GLfloat*)malloc(sizeof(GLfloat) * nVerticesVisiveis);
-		for (int i = 0; i < nVerticesVisiveis; i++)
-			arrayACopiar[i] = verticesVisiveis[i];
-	}
 
 	void printarCoords() {
 		std::cout << "------------------------------------" << std::endl;
@@ -176,8 +158,8 @@ public:
 	void mudarDirecao(int dir) {
 		direcao = dir;
 	}
-	bolaPong(GLfloat* vertices_, std::size_t sizeofVertices,GLfloat valorMovimento = 0.01f, int dire = 3)
-		: poligono(vertices_, sizeofVertices) {
+	bolaPong(GLfloat* vertices_, std::size_t sizeofVertices,  GLfloat larg, GLfloat comp, GLfloat centX, GLfloat centY, GLfloat centZ, GLfloat valorMovimento = 0.01f, int dire = 3)
+		: poligono(vertices_, sizeofVertices, larg, comp,centX, centY, centZ) {
 		valorMov = valorMovimento;
 		direcao = dire;
 	}
@@ -199,20 +181,32 @@ public:
 					if (i % 3 == 1)
 						vertices[i] = vertices[i] + valorMov;
 				}
+
+				centro[1] = centro[1] + valorMov;
 				break;
 			case 2://baixo
 				for (int i = 0; i < nVertices; i++) {
 					if (i % 3 == 1)
 						vertices[i] = vertices[i] - valorMov;
 				}
+
+				centro[1] = centro[1] - valorMov;
 				break;
 			case 3://esquerda
 				for (int i = 0; i < nVertices; i++) {
 					if (i % 3 == 0)
 						vertices[i] = vertices[i] - valorMov;
 				}
+
+				centro[0] = centro[0] - valorMov;
 				break;
 			case 4://direita
+				for (int i = 0; i < nVertices; i++) {
+					if (i % 3 == 0)
+						vertices[i] = vertices[i] + valorMov;
+				}
+
+				centro[0] = centro[0]  +valorMov;
 				break;
 			case 5://cima esquerda
 				break;
@@ -233,8 +227,8 @@ class InimigoIA : public poligono {
 	int direcao = 1;//1 cima, 2 baixo
 public:
 	
-	InimigoIA(GLfloat* vertices_, std::size_t sizeofVertices)
-		: poligono(vertices_, sizeofVertices) {
+	InimigoIA(GLfloat* vertices_, std::size_t sizeofVertices, GLfloat larg, GLfloat comp, GLfloat centX, GLfloat centY, GLfloat centZ)
+		: poligono(vertices_, sizeofVertices, larg, comp, centX, centY, centZ) {
 
 	}
 	void andarAutomatico() {

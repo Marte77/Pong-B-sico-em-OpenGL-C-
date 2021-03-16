@@ -619,44 +619,63 @@ int main() {
 }
 */
 
-GLfloat centroPoligono(poligono* r1, GLfloat *verticesVisiveis, int nVertices) {
-	GLfloat centroide = 0.0f
-		,x0 = 0.0f
-		,y0 = 0.0f
-		,x1 = 0.0f
-		,y1 = 0.0f
-		, a = 0.0f;
-	for (int i = 0; i < nVertices; i++) {
-
+int quadranteCentro(GLfloat* centro) {
+	if (centro[0] <= 0)//esta no 1 ou 3 quadrante
+	{
+		if (centro[1] >= 0) //esta no 1 quadrante
+		{
+			return 1;
+		}
+		return 3;
 	}
-	return centroide;
+	else { //esta no 2 ou 4 quadrante
+		if (centro[1] >= 0) //esta no 2 quadrante
+		{
+			return 2;
+		}
+		return 4;
+	}
 }
 
 void verificarColisao(poligono* r1, poligono* r2, bolaPong* bola) {
-	GLfloat* verticesR1, *verticesR2, *verticesBola;
-	bola->copiarArrayVerticesVisiveis(verticesBola);
-	r1->copiarArrayVerticesVisiveis(verticesR1);
-	r2->copiarArrayVerticesVisiveis(verticesR2); //ja cria a memoria 
-	int nVR1 = r1->getNVerticesVi(), nVR2 = r2->getNVerticesVi(), NVBola = bola->getNVerticesVi();
 	
 	//ver direcao da bola, se for para a esquerd vai colidir com r1, se for direita colide com r2
 	int direcaoBola = bola->getDirecao();
-	GLfloat centroBola = centroPoligono(bola, verticesBola, NVBola);
 	
 	if (direcaoBola == 3 or direcaoBola == 5 or direcaoBola == 7) //esquerda
 	{//vai colidir com r1
-		
+		auto centroR = r1->centro;
+		auto centroBola = bola->centro;
+		auto posB = centroBola[0] 
+			, posR = centroR[0] ;
+		int quadrante = quadranteCentro(centroR);
+		if (posB <= posR) {		
+			bola->mudarDirecao(4);
+		}
+		else {
+
+		}
+		//bola->mudarDirecao(4);
 	}
 	else { //vai colidir com r2
+		auto centroR = r2->centro;
+		auto centroBola = bola->centro;
+		auto posB = centroBola[0]
+			, posR = centroR[0];
 
+		if (posB >= posR) {
+			bola->mudarDirecao(3);
+		}
+		else {
+
+		}
+		//bola->mudarDirecao(4);
 	}
 
 
 
 
-	free(verticesBola);
-	free(verticesR1);
-	free(verticesR2);
+	
 }
 
 int main() {
@@ -707,8 +726,9 @@ int main() {
 		-0.8f,0.35f,0.0f,
 		-0.8f,-0.35f,0.0f
 	};
-
-	poligono*r1 = new poligono(r1Vertices,sizeof(r1Vertices));
+	GLfloat largura, comprimento;
+	largura = 0.9f - 0.8f; comprimento = 0.35f + 0.35f;
+	poligono*r1 = new poligono(r1Vertices,sizeof(r1Vertices),largura, comprimento, -0.7f,0.0f,0.0f);
 
 	GLfloat r2Vertices[6 * 3] = {
 		0.9f,0.35f,0.0f,
@@ -719,7 +739,7 @@ int main() {
 		0.8f,-0.35f,0.0f
 	};
 
-	InimigoIA* r2 = new InimigoIA(r2Vertices, sizeof(r2Vertices));
+	InimigoIA* r2 = new InimigoIA(r2Vertices, sizeof(r2Vertices), largura, comprimento, 0.7f, 0.0f, 0.0f);
 
 	GLfloat bolaVertices[6*3] = {
 		   0.1f,0.1f,0.0f,
@@ -730,8 +750,8 @@ int main() {
 		   -0.1f,-0.1f,0.0f
 
 	};
-
-	bolaPong* bola = new bolaPong(bolaVertices, sizeof(bolaVertices));
+	largura = 0.1f; comprimento = 0.1f;
+	bolaPong* bola = new bolaPong(bolaVertices, sizeof(bolaVertices), largura, comprimento, 0.0f, 0.0f, 0.0f);
 	//bola->mudarDirecao(4);
 
 
@@ -750,8 +770,8 @@ int main() {
 		bola->andarBola();
 		r2->draw();
 		bola->draw();
-
 		
+		verificarColisao(r1, r2, bola);
 
 		processarInputKeyboard(janela,r1);
 		glfwSwapBuffers(janela);
