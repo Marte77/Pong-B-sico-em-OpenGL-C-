@@ -371,9 +371,11 @@ void processarInputKeyboard(GLFWwindow* janela, poligono *r1) {
 	}
 	
 }
-
+int winW = 1280, winH = 720;
 void user_redimensiona_janela_callback(GLFWwindow* window, int width, int height)
 {
+	winW = width;
+	winH = height;
 	//alterar a janela de renderizacao quando o utilizador redimensiona a janela de modo a ficar sempre justo
 	glViewport(0, 0, width, height);
 }
@@ -617,6 +619,46 @@ int main() {
 }
 */
 
+GLfloat centroPoligono(poligono* r1, GLfloat *verticesVisiveis, int nVertices) {
+	GLfloat centroide = 0.0f
+		,x0 = 0.0f
+		,y0 = 0.0f
+		,x1 = 0.0f
+		,y1 = 0.0f
+		, a = 0.0f;
+	for (int i = 0; i < nVertices; i++) {
+
+	}
+	return centroide;
+}
+
+void verificarColisao(poligono* r1, poligono* r2, bolaPong* bola) {
+	GLfloat* verticesR1, *verticesR2, *verticesBola;
+	bola->copiarArrayVerticesVisiveis(verticesBola);
+	r1->copiarArrayVerticesVisiveis(verticesR1);
+	r2->copiarArrayVerticesVisiveis(verticesR2); //ja cria a memoria 
+	int nVR1 = r1->getNVerticesVi(), nVR2 = r2->getNVerticesVi(), NVBola = bola->getNVerticesVi();
+	
+	//ver direcao da bola, se for para a esquerd vai colidir com r1, se for direita colide com r2
+	int direcaoBola = bola->getDirecao();
+	GLfloat centroBola = centroPoligono(bola, verticesBola, NVBola);
+	
+	if (direcaoBola == 3 or direcaoBola == 5 or direcaoBola == 7) //esquerda
+	{//vai colidir com r1
+		
+	}
+	else { //vai colidir com r2
+
+	}
+
+
+
+
+	free(verticesBola);
+	free(verticesR1);
+	free(verticesR2);
+}
+
 int main() {
 	//inicializar glfw e configurar
 	if (!glfwInit()) {
@@ -630,7 +672,7 @@ int main() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	//criar janela
-	int winW = 1280, winH = 720;
+	
 	GLFWwindow* janela = glfwCreateWindow(winW, winH, "Primeiro Prog OpenGL", NULL, NULL);
 	if (janela == NULL) {
 		std::cout << "falha a criar a janela, vou abortar" << std::endl;
@@ -665,6 +707,7 @@ int main() {
 		-0.8f,0.35f,0.0f,
 		-0.8f,-0.35f,0.0f
 	};
+
 	poligono*r1 = new poligono(r1Vertices,sizeof(r1Vertices));
 
 	GLfloat r2Vertices[6 * 3] = {
@@ -675,6 +718,7 @@ int main() {
 		0.8f,0.35f,0.0f,
 		0.8f,-0.35f,0.0f
 	};
+
 	InimigoIA* r2 = new InimigoIA(r2Vertices, sizeof(r2Vertices));
 
 	GLfloat bolaVertices[6*3] = {
@@ -684,13 +728,15 @@ int main() {
 		   0.1f,-0.1f,0.0f,
 		   -0.1f,0.1f,0.0f,
 		   -0.1f,-0.1f,0.0f
-	};
-	bolaPong* bola = new bolaPong(bolaVertices, sizeof(bolaVertices));
 
+	};
+
+	bolaPong* bola = new bolaPong(bolaVertices, sizeof(bolaVertices));
+	//bola->mudarDirecao(4);
 
 
 	
-
+	
 	while (!glfwWindowShouldClose(janela))
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

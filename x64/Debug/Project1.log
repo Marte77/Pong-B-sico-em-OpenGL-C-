@@ -1,3 +1,3 @@
 ﻿  main.cpp
-D:\Programacao\Programas\OpenGL_GLFW_GLAD_Primeiro\Project1\poligono.h(32,1): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-  Project1.vcxproj -> D:\Programacao\Programas\OpenGL_GLFW_GLAD_Primeiro\Project1\x64\Debug\Project1.exe
+D:\Programacao\Programas\OpenGL_GLFW_GLAD_Primeiro\Project1\Pong-B-sico-em-OpenGL-C-\poligono.h(40,1): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  Project1.vcxproj -> D:\Programacao\Programas\OpenGL_GLFW_GLAD_Primeiro\Project1\Pong-B-sico-em-OpenGL-C-\x64\Debug\Project1.exe
