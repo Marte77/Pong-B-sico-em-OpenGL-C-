@@ -15,7 +15,14 @@
 #include "loadShader.hpp"
 #include "triangulo.h"
 #include "poligono.h"
-
+#define DIR_ESQ 3
+#define DIR_DIR 4
+#define DIR_CIM 1
+#define DIR_BAI 2
+#define DIR_CIMAESQ 5
+#define DIR_BAIXOESQ 7
+#define DIR_CIMADIR 6
+#define DIR_BAIXODIR 8
 /*
 //inicio opengl glad
 
@@ -363,15 +370,15 @@ void processarInputKeyboard(GLFWwindow* janela, poligono *r1) {
 		glfwSetWindowShouldClose(janela, true);
 	}
 	else if (glfwGetKey(janela, GLFW_KEY_UP) == GLFW_PRESS) {
-		r1->mover(1); r1->printarCoords();
+		r1->mover(1);
 	}
 	else if (glfwGetKey(janela, GLFW_KEY_DOWN) == GLFW_PRESS) {
 		r1->mover(2);
-		r1->printarCoords();
+
 	}
 	
 }
-int winW = 1280, winH = 720;
+int winW = 1280, winH = 1280;
 void user_redimensiona_janela_callback(GLFWwindow* window, int width, int height)
 {
 	winW = width;
@@ -642,34 +649,63 @@ void verificarColisao(poligono* r1, poligono* r2, bolaPong* bola) {
 	//ver direcao da bola, se for para a esquerd vai colidir com r1, se for direita colide com r2
 	int direcaoBola = bola->getDirecao();
 	
-	if (direcaoBola == 3 or direcaoBola == 5 or direcaoBola == 7) //esquerda
+	if (direcaoBola == DIR_ESQ or direcaoBola == DIR_CIMAESQ or direcaoBola == DIR_BAIXOESQ) 
 	{//vai colidir com r1
 		auto centroR = r1->centro;
 		auto centroBola = bola->centro;
-		auto posB = centroBola[0] 
-			, posR = centroR[0] ;
-		int quadrante = quadranteCentro(centroR);
-		if (posB <= posR) {		
-			bola->mudarDirecao(6);
-		}
-		else {
+		//TODO: AS LARGURAS E COMPRIMENTOS ESTAO TODOS CEGOS
+		GLfloat posXLadoR = r1->centro[0] + r1->largura; //estas 3 variaveis correspondem à pos x do lado direito de r1
+		GLfloat posYVerticeTop = r1->centro[1] + r1->comprimento,//estas duas fazem a linha da direita do retyanguloo
+			posYVerticeBaixo = -posYVerticeTop;
 
-		}
-		//bola->mudarDirecao(4);
+		GLfloat posXLadoB = bola->centro[0] - bola->largura; //estas 3 variaveis correspondem à pos x do lado direito de bola
+		GLfloat BposYVerticeTop = bola->centro[1] + bola->comprimento, //estas duas fazem a linha da esquerda da bola
+			BposYVerticeBaixo = -BposYVerticeTop;
+		if(posXLadoR>=posXLadoB)
+			if (posYVerticeTop >= BposYVerticeBaixo) {
+				if (centroBola == centroR)
+				{
+					bola->mudarDirecao(DIR_DIR);
+					return;
+				}
+				bola->mudarDirecao(DIR_CIMADIR);
+			}
+			else if (BposYVerticeTop >= posYVerticeBaixo) {
+				if (centroBola == centroR)
+				{
+					bola->mudarDirecao(DIR_DIR);
+					return;
+				}
+				bola->mudarDirecao(DIR_BAIXODIR);
+			}
 	}
 	else { //vai colidir com r2
 		auto centroR = r2->centro;
 		auto centroBola = bola->centro;
-		auto posB = centroBola[0]
-			, posR = centroR[0];
+		GLfloat posXLadoR = r1->centro[0] - r1->largura; 
+		GLfloat posYVerticeTop = r1->centro[1] - r1->comprimento,
+			posYVerticeBaixo = -posYVerticeTop;
 
-		if (posB >= posR) {
-			bola->mudarDirecao(3);
+		GLfloat posXLadoB = bola->centro[0] + bola->largura; 
+		GLfloat BposYVerticeTop = bola->centro[1] + bola->comprimento, 
+			BposYVerticeBaixo = -posYVerticeTop;
+		if (posYVerticeTop >= BposYVerticeBaixo) {
+			if (centroBola == centroR)
+			{
+				bola->mudarDirecao(DIR_ESQ);
+				return;
+			}
+			bola->mudarDirecao(DIR_CIMAESQ);
 		}
-		else {
+		else if (BposYVerticeTop >= posYVerticeBaixo) {
+			if (centroBola == centroR)
+			{
+				bola->mudarDirecao(DIR_ESQ);
+				return;
+			}
+			bola->mudarDirecao(DIR_BAIXOESQ);
+		}
 
-		}
-		//bola->mudarDirecao(4);
 	}
 
 
@@ -678,6 +714,13 @@ void verificarColisao(poligono* r1, poligono* r2, bolaPong* bola) {
 	
 }
 
+int printarPontos(int* P1, int* P2, int p);
+void resetarPosicoes(poligono* r1, poligono* r2, bolaPong *bola, int dir) {
+	r1->colocarNaPosicaoInicial();
+	r2->colocarNaPosicaoInicial();
+	bola->colocarNaPosicaoInicial();
+	bola->mudarDirecao(dir);
+}
 int main() {
 	//inicializar glfw e configurar
 	if (!glfwInit()) {
@@ -752,11 +795,11 @@ int main() {
 	};
 	largura = 0.1f; comprimento = 0.1f;
 	bolaPong* bola = new bolaPong(bolaVertices, sizeof(bolaVertices), largura, comprimento, 0.0f, 0.0f, 0.0f);
-	//bola->mudarDirecao(4);
 
-
+	printf("comp %f, larg %f, centro[0] %f", bola->comprimento, bola->largura, bola->centro[1]);
 	
-	
+	int P1 = 0, P2 = 0;
+	int p=0;
 	while (!glfwWindowShouldClose(janela))
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -766,11 +809,18 @@ int main() {
 		
 		r1->draw();
 		r2->andarAutomatico();
-		bola->andarBola();
+		p = bola->andarBola();
 		r2->draw();
 		bola->draw();
 		
 		verificarColisao(r1, r2, bola);
+		p = printarPontos(&P1, &P2, p);
+		if ( p==1) {
+			resetarPosicoes(r1, r2, bola, DIR_DIR);
+		}
+		else if (p == -1) {
+			resetarPosicoes(r1, r2, bola, DIR_ESQ);
+		}
 
 		processarInputKeyboard(janela,r1);
 		glfwSwapBuffers(janela);
@@ -779,4 +829,23 @@ int main() {
 	delete r1;
 	delete r2;
 	delete bola;
+}
+
+int printarPontos(int *P1, int *P2, int p) {
+	if (p == 0)
+		return 0;
+	int a = 1;
+	if (p == 1)
+	{
+		(*P1)++;
+		printf("P1 MARCOU! P2, lol.\n");
+	}
+	else if (p == -1)
+	{
+		(*P1)++;
+		a = -1;
+		printf("P2 MARCOU! P1, ES HORRIVEL AHHA\n");
+	}
+	printf("Resultado:\n\t P1 %d : P2 %d\n", *P1, *P2);
+	return a;
 }
