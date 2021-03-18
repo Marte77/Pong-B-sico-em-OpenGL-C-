@@ -650,7 +650,7 @@ void verificarColisao(poligono* r1, poligono* r2, bolaPong* bola) {
 			, posR = centroR[0] ;
 		int quadrante = quadranteCentro(centroR);
 		if (posB <= posR) {		
-			bola->mudarDirecao(4);
+			bola->mudarDirecao(6);
 		}
 		else {
 
@@ -763,7 +763,6 @@ int main() {
 		glUseProgram(programID); //usar o shader criado
 		glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
-		
 		
 		r1->draw();
 		r2->andarAutomatico();

@@ -209,12 +209,44 @@ public:
 				centro[0] = centro[0]  +valorMov;
 				break;
 			case 5://cima esquerda
+				for (int i = 0; i < nVertices; i++) {
+					if (i % 3 == 0)
+						vertices[i] = vertices[i] - valorMov;
+					if (i % 3 == 1)
+						vertices[i] = vertices[i] + valorMov;
+				}
+				centro[0] = centro[0] - valorMov;
+				centro[1] = centro[1] + valorMov;
 				break;
 			case 6://cima direita
+				for (int i = 0; i < nVertices; i++) {
+					if (i % 3 == 0)
+						vertices[i] = vertices[i] + valorMov;
+					if (i % 3 == 1)
+						vertices[i] = vertices[i] + valorMov;
+				}
+				centro[0] = centro[0] + valorMov;
+				centro[1] = centro[1] + valorMov;
 				break;
 			case 7://baixo esquerda 
+				for (int i = 0; i < nVertices; i++) {
+					if (i % 3 == 0)
+						vertices[i] = vertices[i] - valorMov;
+					if (i % 3 == 1)
+						vertices[i] = vertices[i] - valorMov;
+				}
+				centro[0] = centro[0] - valorMov;
+				centro[1] = centro[1] - valorMov;
 				break;
 			case 8://baixo direita
+				for (int i = 0; i < nVertices; i++) {
+					if (i % 3 == 0)
+						vertices[i] = vertices[i] + valorMov;
+					if (i % 3 == 1)
+						vertices[i] = vertices[i] - valorMov;
+				}
+				centro[0] = centro[0] + valorMov;
+				centro[1] = centro[1] - valorMov;
 				break;
 				
 		}
